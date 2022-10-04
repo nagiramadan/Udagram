@@ -1,0 +1,24 @@
+language: node_js
+node_js:
+  - 13
+
+services:
+  - docker
+
+script:
+  - docker-compose -f docker-compose-build.yaml build --parallel
+  - docker tag udagram-api-feed nagiramadan/udagram-api-feed
+  - docker tag udagram-api-user nagiramadan/udagram-api-user
+  - docker tag reverseproxy nagiramadan/reverseproxy
+  - docker tag udagram-frontend nagiramadan/udagram-frontend
+
+after_success:
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker push nagiramadan/udagram-api-feed
+  - docker push nagiramadan/udagram-api-user
+  - docker push nagiramadan/reverseproxy
+  - docker push nagiramadan/udagram-frontend
+
+branches:
+  only:
+    - "master"
